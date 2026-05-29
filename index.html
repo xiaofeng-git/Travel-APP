@@ -113,13 +113,15 @@
             100% { transform: scale(2); opacity: 0; }
         }
 
-        /* 贺卡 & 奖状 弹窗 */
+        /* --------------------------
+        以下是：美化后的 贺卡 + 奖状
+        --------------------------- */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -132,89 +134,90 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        .card-box, .cert-box {
-            transform-style: preserve-3d;
-            animation: openCard 1.5s ease forwards;
-            width: 600px;
-            max-width: 90vw;
-            height: 400px;
+
+        /* 贺卡样式 */
+        .card-box {
+            width: 90%;
+            max-width: 700px;
+            height: 80vh;
+            max-height: 600px;
+            background: url("https://picsum.photos/id/10/1600/1200") center/cover no-repeat;
+            border-radius: 20px;
             position: relative;
-        }
-        .card-front, .card-inner {
-            position: absolute;
-            width: 100%; height: 100%;
-            backface-visibility: hidden;
-            border-radius: 12px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 30px;
             text-align: center;
-        }
-        .card-front {
-            background: linear-gradient(135deg, #ffb6c1, #ff69b4);
-            color: #fff;
-            font-size: 30px;
-        }
-        .card-inner {
-            background: #fff;
-            transform: rotateY(180deg);
-            color: #333;
-        }
-        @keyframes openCard {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(-180deg); }
-        }
-        .cert-box {
-            background: #fff9e6;
-            border: 6px solid #ffb300;
-            border-radius: 16px;
+            color: white;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
             padding: 40px;
-            text-align: center;
-            animation: pop 0.8s ease;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+            animation: cardPop 1s ease;
         }
-        @keyframes pop {
-            0% { transform: scale(0.4); opacity: 0; }
+        .card-box h2 {
+            font-size: 42px;
+            margin-bottom: 30px;
+        }
+        .card-box p {
+            font-size: 24px;
+            line-height: 1.8;
+        }
+
+        /* 奖状样式 */
+        .cert-box {
+            width: 90%;
+            max-width: 700px;
+            height: 80vh;
+            max-height: 600px;
+            background: url("https://picsum.photos/id/106/1600/1200") center/cover no-repeat;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #a82020;
+            padding: 40px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+            animation: certPop 1s ease;
+        }
+        .cert-box h2 {
+            font-size: 46px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .cert-box p {
+            font-size: 26px;
+            line-height: 2;
+            font-weight: 500;
+        }
+
+        @keyframes cardPop {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes certPop {
+            0% { transform: scale(0.6); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
         .close {
-            margin-top: 20px;
-            padding: 8px 20px;
+            margin-top: 30px;
+            padding: 12px 30px;
             background: #ff4444;
             color: #fff;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
+            font-size: 18px;
             cursor: pointer;
-        }
-        /* 感性文字悬浮层 —— 不占空间、不遮挡、自动消失 */
-        .quote {
-            position: fixed;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 80px;
-            color: rgba(255, 255, 255, 0.65);
-            font-size: 15px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-            z-index: 50;
-            pointer-events: none; /* 关键：不影响点击游戏 */
-            opacity: 1;
-            transition: opacity 1.5s ease;
-            width: 90%;
-            text-align: center;
-            line-height: 1.5;
-        }
-        .quote.fade {
-            opacity: 0;
         }
     </style>
 </head>
 
 <body>
     <div class="tip">🎈 点击画面寻找宝藏 | 左右切换风景 🎈</div>
-    <div class="quote" id="quote">
-        以山水为幕，以纸条为礼。复刻童年山野间的小游戏，不为输赢，只为重温那份纯粹的快乐。愿每一次点击，都能遇见温柔；每一份奖状与贺卡，都能留住不老的童心。
-    </div>
+
     <div class="container">
         <div class="side" id="left"></div>
         <div class="main" id="main">
@@ -225,37 +228,41 @@
 
     <button class="hint-btn" id="hint">提示宝藏位置</button>
 
-    <!-- 贺卡弹窗 -->
+    <!-- 贺卡 -->
     <div class="modal" id="cardModal">
         <div class="card-box">
-            <div class="card-front">💌 打开贺卡</div>
-            <div class="card-inner" id="cardContent"></div>
+            <h2>💌 六一贺卡</h2>
+            <p id="cardContent"></p>
+            <p style="margin-top:20px;">🎉 儿童节快乐 🎉</p>
+            <button class="close" onclick="closeModal()">关闭</button>
         </div>
-        <button class="close" onclick="closeModal()">关闭</button>
     </div>
 
-    <!-- 奖状弹窗 -->
+    <!-- 奖状 -->
     <div class="modal" id="certModal">
-        <div class="cert-box" id="certContent"></div>
-        <button class="close" onclick="closeModal()">关闭</button>
+        <div class="cert-box">
+            <h2>🏆 荣誉奖状</h2>
+            <p>授予：可爱的大朋友</p>
+            <p id="certContent" style="font-weight:bold; color:#c0392b;"></p>
+            <p>特发此状，以资鼓励！</p>
+            <p style="margin-top:20px;">🎈 儿童节快乐 🎈</p>
+            <button class="close" onclick="closeModal()">关闭</button>
+        </div>
     </div>
 
     <script>
-        // 风景图
         const imgs = [
-            "https://picsum.photos/id/15/1920/1080",
+            "https://picsum.photos/id/10/1920/1080",
             "https://picsum.photos/id/11/1920/1080",
             "https://picsum.photos/id/12/1920/1080"
         ];
         let idx = 0;
 
-        // 宝藏位置
         const points = [
             {x:0.15,y:0.25},{x:0.32,y:0.4},{x:0.5,y:0.2},
             {x:0.68,y:0.55},{x:0.82,y:0.3},{x:0.22,y:0.7},{x:0.75,y:0.78}
         ];
 
-        // 贺卡内容
         const cards = [
             "愿你童心未泯，所遇皆甜🍬",
             "山林寻宝，快乐无限✨",
@@ -264,13 +271,12 @@
             "愿你眼里有光，心中有爱💌"
         ];
 
-        // 奖状内容
         const certs = [
-            "🏆 荣获：寻宝小能手 称号",
-            "🏆 荣获：童心常驻奖 称号",
-            "🏆 荣获：怀旧达人奖 称号",
-            "🏆 荣获：快乐童年奖 称号",
-            "🏆 荣获：永葆童心优秀奖 称号"
+            "荣获：寻宝小能手 称号",
+            "荣获：童心常驻奖 称号",
+            "荣获：怀旧达人奖 称号",
+            "荣获：快乐童年奖 称号",
+            "荣获：永葆童心优秀奖 称号"
         ];
 
         let main = document.getElementById("main");
@@ -281,7 +287,6 @@
         let mark = null;
         let treasure = randomPoint();
 
-        // 初始化画面
         function update() {
             bg.style.backgroundImage = `url(${imgs[idx]})`;
             left.style.backgroundImage = `url(${imgs[(idx+2)%3]})`;
@@ -293,13 +298,11 @@
         left.onclick = () => { idx = (idx+2)%3; update(); treasure = randomPoint(); }
         right.onclick = () => { idx = (idx+1)%3; update(); treasure = randomPoint(); }
 
-        // 随机宝藏位置
         function randomPoint() {
             let p = points[Math.floor(Math.random()*points.length)];
             return { x: p.x*main.offsetWidth, y: p.y*main.offsetHeight };
         }
 
-        // 提示
         hint.onclick = () => {
             if(mark) mark.remove();
             mark = document.createElement("div");
@@ -309,13 +312,11 @@
             main.appendChild(mark);
         };
 
-        // 点击寻宝
         main.onclick = (e) => {
             let rect = main.getBoundingClientRect();
             let x = e.clientX - rect.left;
             let y = e.clientY - rect.top;
 
-            // 点击波纹
             let r = document.createElement("div");
             r.className = "click";
             r.style.left = e.clientX-20+"px";
@@ -323,7 +324,6 @@
             document.body.appendChild(r);
             setTimeout(()=>r.remove(),600);
 
-            // 判断命中
             if(Math.abs(x-treasure.x)<70 && Math.abs(y-treasure.y)<70) {
                 openReward();
                 treasure = randomPoint();
@@ -331,36 +331,22 @@
             }
         };
 
-        // 随机奖励
         function openReward() {
             let type = Math.random() > 0.5 ? "card" : "cert";
             if(type === "card") {
                 let txt = cards[Math.floor(Math.random()*cards.length)];
-                document.getElementById("cardContent").innerHTML = `
-                    <h2>六一贺卡</h2><p>${txt}</p><p>儿童节快乐 🎉</p>
-                `;
+                document.getElementById("cardContent").innerText = txt;
                 document.getElementById("cardModal").classList.add("show");
             } else {
                 let txt = certs[Math.floor(Math.random()*certs.length)];
-                document.getElementById("certContent").innerHTML = `
-                    <h2>🏆 荣誉奖状</h2>
-                    <p>授予：可爱的大朋友</p>
-                    <p><strong>${txt}</strong></p>
-                    <p>特发此状，以资鼓励！</p>
-                    <p>🎈 儿童节快乐</p>
-                `;
+                document.getElementById("certContent").innerText = txt;
                 document.getElementById("certModal").classList.add("show");
             }
         }
 
-        // 关闭弹窗
         function closeModal() {
             document.querySelectorAll(".modal").forEach(m=>m.classList.remove("show"));
         }
-        // 3秒后文字温柔消失
-        setTimeout(() => {
-            document.getElementById("quote").classList.add("fade");
-        }, 3000);
     </script>
 </body>
 </html>
