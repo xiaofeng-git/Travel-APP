@@ -187,12 +187,34 @@
             border-radius: 6px;
             cursor: pointer;
         }
+        /* 感性文字悬浮层 —— 不占空间、不遮挡、自动消失 */
+        .quote {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 80px;
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 15px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+            z-index: 50;
+            pointer-events: none; /* 关键：不影响点击游戏 */
+            opacity: 1;
+            transition: opacity 1.5s ease;
+            width: 90%;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .quote.fade {
+            opacity: 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="tip">🎈 点击画面寻找宝藏 | 左右切换风景 🎈</div>
-
+    <div class="quote" id="quote">
+        以山水为幕，以纸条为礼。复刻童年山野间的小游戏，不为输赢，只为重温那份纯粹的快乐。愿每一次点击，都能遇见温柔；每一份奖状与贺卡，都能留住不老的童心。
+    </div>
     <div class="container">
         <div class="side" id="left"></div>
         <div class="main" id="main">
@@ -335,6 +357,10 @@
         function closeModal() {
             document.querySelectorAll(".modal").forEach(m=>m.classList.remove("show"));
         }
+        // 3秒后文字温柔消失
+        setTimeout(() => {
+            document.getElementById("quote").classList.add("fade");
+        }, 3000);
     </script>
 </body>
 </html>
