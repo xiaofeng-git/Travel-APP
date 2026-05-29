@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>童年山林寻宝</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: #1a1a1a;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px;
+        }
+        .side {
+            width: 12%;
+            height: 85vh;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            opacity: 0.65;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .side:hover {
+            opacity: 1;
+            transform: scale(1.02);
+        }
+        .main {
+            width: 70%;
+            height: 85vh;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: crosshair;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+        }
+        .main-bg {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: background 0.5s ease;
+        }
+        .tip {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 20px;
+            text-shadow: 0 0 8px #000;
+            z-index: 999;
+        }
+        .hint-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 28px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .hint-btn:hover {
+            background: #ff6b00;
+        }
+        .mark {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #ffeb3b;
+            border-radius: 50%;
+            background: rgba(255,235,59,0.2);
+            animation: pulse 1s infinite alternate;
+            pointer-events: none;
+            z-index: 10;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.15); }
+        }
+        .click {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: ring 0.6s forwards;
+        }
+        @keyframes ring {
+            0% { transform: scale(0.2); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* 贺卡 & 奖状 弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.4s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .card-box, .cert-box {
+            transform-style: preserve-3d;
+            animation: openCard 1.5s ease forwards;
+            width: 600px;
+            max-width: 90vw;
+            height: 400px;
+            position: relative;
+        }
+        .card-front, .card-inner {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+        }
+        .card-front {
+            background: linear-gradient(135deg, #ffb6c1, #ff69b4);
+            color: #fff;
+            font-size: 30px;
+        }
+        .card-inner {
+            background: #fff;
+            transform: rotateY(180deg);
+            color: #333;
+        }
+        @keyframes openCard {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(-180deg); }
+        }
+        .cert-box {
+            background: #fff9e6;
+            border: 6px solid #ffb300;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            animation: pop 0.8s ease;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.4); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .close {
+            margin-top: 20px;
+            padding: 8px 20px;
+            background: #ff4444;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tip">🎈 点击画面寻找宝藏 | 左右切换风景 🎈</div>
+
+    <div class="container">
+        <div class="side" id="left"></div>
+        <div class="main" id="main">
+            <div class="main-bg" id="bg"></div>
+        </div>
+        <div class="side" id="right"></div>
+    </div>
+
+    <button class="hint-btn" id="hint">提示宝藏位置</button>
+
+    <!-- 贺卡弹窗 -->
+    <div class="modal" id="cardModal">
+        <div class="card-box">
+            <div class="card-front">💌 打开贺卡</div>
+            <div class="card-inner" id="cardContent"></div>
+        </div>
+        <button class="close" onclick="closeModal()">关闭</button>
+    </div>
+
+    <!-- 奖状弹窗 -->
+    <div class="modal" id="certModal">
+        <div class="cert-box" id="certContent"></div>
+        <button class="close" onclick="closeModal()">关闭</button>
+    </div>
+
+    <script>
+        // 风景图
+        const imgs = [
+            "https://picsum.photos/id/10/1920/1080",
+            "https://picsum.photos/id/11/1920/1080",
+            "https://picsum.photos/id/12/1920/1080"
+        ];
+        let idx = 0;
+
+        // 宝藏位置
+        const points = [
+            {x:0.15,y:0.25},{x:0.32,y:0.4},{x:0.5,y:0.2},
+            {x:0.68,y:0.55},{x:0.82,y:0.3},{x:0.22,y:0.7},{x:0.75,y:0.78}
+        ];
+
+        // 贺卡内容
+        const cards = [
+            "愿你童心未泯，所遇皆甜🍬",
+            "山林寻宝，快乐无限✨",
+            "保持热爱，永远少年🌿",
+            "简单的小美好，藏在风景里💛",
+            "愿你眼里有光，心中有爱💌"
+        ];
+
+        // 奖状内容
+        const certs = [
+            "🏆 荣获：寻宝小能手 称号",
+            "🏆 荣获：童心常驻奖 称号",
+            "🏆 荣获：怀旧达人奖 称号",
+            "🏆 荣获：快乐童年奖 称号",
+            "🏆 荣获：永葆童心优秀奖 称号"
+        ];
+
+        let main = document.getElementById("main");
+        let bg = document.getElementById("bg");
+        let left = document.getElementById("left");
+        let right = document.getElementById("right");
+        let hint = document.getElementById("hint");
+        let mark = null;
+        let treasure = randomPoint();
+
+        // 初始化画面
+        function update() {
+            bg.style.backgroundImage = `url(${imgs[idx]})`;
+            left.style.backgroundImage = `url(${imgs[(idx+2)%3]})`;
+            right.style.backgroundImage = `url(${imgs[(idx+1)%3]})`;
+            if(mark) mark.remove();
+        }
+        update();
+
+        left.onclick = () => { idx = (idx+2)%3; update(); treasure = randomPoint(); }
+        right.onclick = () => { idx = (idx+1)%3; update(); treasure = randomPoint(); }
+
+        // 随机宝藏位置
+        function randomPoint() {
+            let p = points[Math.floor(Math.random()*points.length)];
+            return { x: p.x*main.offsetWidth, y: p.y*main.offsetHeight };
+        }
+
+        // 提示
+        hint.onclick = () => {
+            if(mark) mark.remove();
+            mark = document.createElement("div");
+            mark.className = "mark";
+            mark.style.left = treasure.x - 25 + "px";
+            mark.style.top = treasure.y - 25 + "px";
+            main.appendChild(mark);
+        };
+
+        // 点击寻宝
+        main.onclick = (e) => {
+            let rect = main.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+
+            // 点击波纹
+            let r = document.createElement("div");
+            r.className = "click";
+            r.style.left = e.clientX-20+"px";
+            r.style.top = e.clientY-20+"px";
+            document.body.appendChild(r);
+            setTimeout(()=>r.remove(),600);
+
+            // 判断命中
+            if(Math.abs(x-treasure.x)<70 && Math.abs(y-treasure.y)<70) {
+                openReward();
+                treasure = randomPoint();
+                if(mark) mark.remove();
+            }
+        };
+
+        // 随机奖励
+        function openReward() {
+            let type = Math.random() > 0.5 ? "card" : "cert";
+            if(type === "card") {
+                let txt = cards[Math.floor(Math.random()*cards.length)];
+                document.getElementById("cardContent").innerHTML = `
+                    <h2>六一贺卡</h2><p>${txt}</p><p>儿童节快乐 🎉</p>
+                `;
+                document.getElementById("cardModal").classList.add("show");
+            } else {
+                let txt = certs[Math.floor(Math.random()*certs.length)];
+                document.getElementById("certContent").innerHTML = `
+                    <h2>🏆 荣誉奖状</h2>
+                    <p>授予：可爱的大朋友</p>
+                    <p><strong>${txt}</strong></p>
+                    <p>特发此状，以资鼓励！</p>
+                    <p>🎈 儿童节快乐</p>
+                `;
+                document.getElementById("certModal").classList.add("show");
+            }
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.querySelectorAll(".modal").forEach(m=>m.classList.remove("show"));
+        }
+    </script>
+</body>
+</html>
